@@ -1,0 +1,6 @@
+$Image::ExifTool::Geolocation::geoDir = 'Geolocation500';
+
+%Image::ExifTool::UserDefined::Shortcuts = (
+    MyTags => ['filesize','mimetype','orientation','imagesize','make','model','software','createdate','flash','GPSAltitude','GPSDateTime','GPSLatitude','GPSLongitude','GeolocationCity','GeolocationRegion','GeolocationCountryCode','GeolocationCountry','GeolocationTimeZone','GeolocationPopulation','GeolocationPosition','GeolocationDistance','GeolocationBearing']
+
+);
