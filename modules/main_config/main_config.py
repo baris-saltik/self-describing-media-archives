@@ -95,8 +95,7 @@ class Config(object):
 
         # Vision AI
         visionAIDefaults = {
-            'creds': {
-            },
+            'creds': '',
             'credsFilePath': '',
             'testFilePath': "test_image.jpg"
         }
