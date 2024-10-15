@@ -452,7 +452,7 @@
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title" id="formCheckLabel">Form check</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          <button id = "closeFormCheckUpper"type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
 
         <div id = "formCheckBody" class="modal-body">
@@ -632,12 +632,15 @@
     // ### Check for fields that dont have values. This is the custom validation function.
     let formCheckModal = new bootstrap.Modal(document.querySelector('#formCheck'), {backdrop: true, keyboard: true, focus: true})
     let formCheckModalBody = document.querySelector("#formCheckBody");
+    let closeFormCheckUpper = document.querySelector("#closeFormCheckUpper");
     let closeFormCheck = document.querySelector("#closeFormCheck");
+
 
     let close_formcheck_modal = () => {
         formCheckModal.hide();
     }
     closeFormCheck.addEventListener("click", close_formcheck_modal);
+    closeFormCheckUpper.addEventListener("click", close_formcheck_modal);
 
     let validate_values = () => {
 
