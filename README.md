@@ -71,7 +71,7 @@ python -m pip install -r Requirements.txt
    ```console
    python sdma_main.py
    ```
-7. Open up a web browser and direct ito the following address.
+7. For web version open up a web browser and direct it to the following address.
 ```console
 https://127.0.0.1:5000
 ```
