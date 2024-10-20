@@ -420,7 +420,8 @@ class Main(object):
                     self.threads['thread' + str(i)]['numberOfPages'] += 1
         else:
             logger.warning(f"No objects have been found! Quiting...")
-            sys.exit()
+            update_progress_page(progressPage=self.progressPage, progress="init-threads-failed")
+            return False
 
         # Log thread stats
         logger.info(f"Number of maximum threads: {self.maxNumberOfThreads}")

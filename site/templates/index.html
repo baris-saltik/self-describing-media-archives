@@ -292,14 +292,14 @@
 
                             <div class="col-3">
                                 <div class="form-floating">  
-                                    {{ mainForm.starburstGalaxyAccountDomainField(class="form-control", placeholder="Account Domain") }}
+                                    {{ mainForm.starburstGalaxyAccountDomainField(class="form-control", placeholder="Account Domain", id="starburstGalaxyAccountDomainField") }}
                                     {{ mainForm.starburstGalaxyAccountDomainField.label(class="form-label") }}
                                 </div>
                             </div>
 
                             <div class="col-2">
                                 <div class="form-floating">  
-                                    {{ mainForm.starburstGalaxyApiKeyField(class="form-control", placeholder="Schema Location") }}
+                                    {{ mainForm.starburstGalaxyApiKeyField(class="form-control", placeholder="Schema Location", id="starburstGalaxyApiKeyField") }}
                                     {{ mainForm.starburstGalaxyApiKeyField.label(class="form-label") }}
                                 </div>
                             </div>
@@ -591,6 +591,8 @@
     let s3SecretField = document.querySelector("#s3SecretField");
     let starburstPasswordField = document.querySelector("#starburstPasswordField");
     let starburstGalaxyApiSecretField = document.querySelector("#starburstGalaxyApiSecretField");
+    let starburstGalaxyApiKeyField = document.querySelector("#starburstGalaxyApiKeyField");
+    let starburstGalaxyAccountDomainField = document.querySelector("#starburstGalaxyAccountDomainField");
 
     s3SecretField.value = "{{ defaultVars['s3Secret'] }}";
     starburstPasswordField.value = "{{ defaultVars['starburstPassword'] }}";
@@ -610,9 +612,8 @@
             workingModalTitle.innerText = "Testing..."
             workingModal.show();
             testButton.click();
-        } else {
-            testButton.click();
         }
+        
     }
     testButton.addEventListener("click", test_button_clicked);
 
@@ -648,10 +649,10 @@
             return true
         }
 
-        let extractLabels = document.querySelector("#runTimeExtractLabelsField");
-        let extractLabelsChecked = extractLabels.checked;
-        let sendToStarburst = document.querySelector("#runTimeSendToStarburstField");
-        let sendToStarburstChecked = sendToStarburst.checked;
+        // let extractLabels = document.querySelector("#runTimeExtractLabelsField");
+        // let extractLabelsChecked = extractLabels.checked;
+        // let sendToStarburst = document.querySelector("#runTimeSendToStarburstField");
+        // let sendToStarburstChecked = sendToStarburst.checked;
 
         let missingValueFound = false
         let sourceSettingsAdded = false;
@@ -689,14 +690,29 @@
                     }
 
                     if(sendToStarburstChecked && item.id.toLowerCase().includes("starburst") && !(starburstSettingsAdded)){
-                        let messageItem = document.createTextNode("Iceberg settings (Starburst)");
-                        let node = document.createElement("li");
-                        node.appendChild(messageItem);
-                        messageItems.appendChild(node);
+                        starburstType = starburstTypeSelection.value
+                        if(starburstType.toLowerCase() !== "galaxy"){   
+                            if(!(item.id.toLowerCase().includes("galaxy"))){
+                                let messageItem = document.createTextNode("Iceberg settings (Starburst)");
+                                let node = document.createElement("li");
+                                node.appendChild(messageItem);
+                                messageItems.appendChild(node);
 
-                        starburstSettingsAdded = true;
-                        missingValueFound = true;
-                    }
+                                starburstSettingsAdded = true;
+                                missingValueFound = true;
+                            }
+
+                        } else {
+                                let messageItem = document.createTextNode("Iceberg settings (Starburst)");
+                                let node = document.createElement("li");
+                                node.appendChild(messageItem);
+                                messageItems.appendChild(node);
+
+                                starburstSettingsAdded = true;
+                                missingValueFound = true;
+                            }
+
+                    }   
 
                     if(item.id.toLowerCase().includes("runtime") && !(runTimeDetectionSettingsAdded)){
                         let messageItem = document.createTextNode("Runtime settings");
@@ -969,7 +985,7 @@
                         workingModal.hide();
                         workingModalDisplayed = false;
                     }
-                    operationFailedBody.innerText = "Worker thread initialization failed!"
+                    operationFailedBody.innerText = "Workers initialization failed! Empty Bucket?"
                     operationFailedModal.show();
 
                 } else if(this.responseText == '200'){

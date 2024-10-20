@@ -289,38 +289,45 @@ def index():
 
             logger.setLevel(config['logging']['level'])
 
-            # Check connectivity to Starburst
-            try:
-                _starburst = StarburstData(config = config)
-                _starburst.create_session()
-                _starburst.__exit__()
-            except Exception as err:
-                logger.error(f"Could not connect to Starburst/DDAE!")
-
-            if _starburst.clusterAvailable:
-                logger.info("Connection to Starburst/DDAE was successful")
-            else:
-                session["testPassed"] = False
-                defaultVars['message'].append("Failed connecting to Starburst/DDAE")
-                
-
             # Check s3 connectivity
             try:
                 _s3 = S3(config = config)
                 _s3.create_client()
                 _s3.verify_bucket()
+
+                if _s3.bucketVerified:
+                    session["testPassed"] = True
+                    logger.info("Connection to S3 bucket was successful")
+                else:
+                    defaultVars['message'].append("Failed connecting to S3 bucket")
+                    logger.error("Failed connecting to S3 bucket")
+
                 _s3.__exit__()
             except Exception as err:
                 session["testPassed"] = False
                 defaultVars['message'].append("Failed connecting to S3 bucket")
                 logger.error("Failed connecting to S3 bucket")
 
+            # Check connectivity to Starburst
+            if config['runTime']['sendToStarburst']:
+                try:
+                    _starburst = StarburstData(config = config)
+                    _starburst.create_session()
+                    
+                    if _starburst.clusterAvailable:
+                        logger.info("Connection to Starburst/DDAE was successful")
+                    else:
+                        session["testPassed"] = False
+                        defaultVars['message'].append("Failed connecting to Starburst/DDAE")
+                        logger.error(f"Failed connecting to Starburst/DDAE")
+                    
+                    _starburst.__exit__()
+                except Exception as err:
+                    session["testPassed"] = False
+                    defaultVars['message'].append("Failed connecting to Starburst/DDAE")
+                    logger.error(f"Failed connecting to Starburst/DDAE")
 
-            if not _s3.bucketVerified:
-                defaultVars['message'].append("Failed connecting to S3 bucket")
-                logger.error("Failed connecting to S3 bucket")
-            else:
-                logger.info("Connection to S3 bucket was successful")
+
 
             # Check vision AI connectivity
             if config['runTime']['extractLabels']:
@@ -328,22 +335,21 @@ def index():
                 try:
                     _visionAI = VisionAI(config = config)
                     _visionAI.test_labeling()
-                except Exception as err:
 
+                    if _visionAI.tested:
+                        logger.info("Labeling the test image was successful")
+                    else:
+                        session["testPassed"] = False
+                        defaultVars['message'].append("Failed labeling a test image")
+                        logger.error(f"Failed labeling a test image")
+
+                except Exception as err:
                     session["testPassed"] = False
+                    defaultVars['message'].append("Failed labeling a test image")
                     logger.error("Failed labeling a test image")
 
-                if not _visionAI.tested:
-                    defaultVars['message'].append("Failed labeling a test image")
-                else:
-                    logger.info("Labeling the test image was successful")
                 
             # Update session variables
-            if config['runTime']['extractLabels']:
-                session["testPassed"] = True if _starburst.clusterAvailable and _s3.bucketVerified and _visionAI.tested else False
-            else:
-                session["testPassed"] = True if _starburst.clusterAvailable and _s3.bucketVerified else False
-
             session['runInitiated'] = False
             session['extractExif'] = config['runTime']['extractExif']
             session['extractLabels'] = config['runTime']['extractLabels']
@@ -387,12 +393,13 @@ def index():
                     return False
 
                 # Step 2 ###################### Starburst initialization ######################
-                main.check_starburst_connectivity()
-                if main.starburst.clusterAvailable:
-                    main.create_schema_table()
-                else:
-                    logger.error(f"Startburst/DDAE Cluster is not available. Skipping Starburst updates.")
-                    return False
+                if config['runTime']['sendToStarburst']:
+                    main.check_starburst_connectivity()
+                    if main.starburst.clusterAvailable:
+                        main.create_schema_table()
+                    else:
+                        logger.error(f"Startburst/DDAE Cluster is not available. Skipping Starburst updates.")
+                        return False
 
 
                 # Step 2 ###################### Image processing ######################
