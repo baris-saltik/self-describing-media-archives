@@ -1,0 +1,15 @@
+.venv
+venv
+test
+logs/
+config/
+vision-api-434508-c522c19f909b.json
+project-test-1-410108-3e9020abb2d1.json
+__pycache__
+__pycache__/
+visionAI_creds.json
+main_config_hol.py
+main_config_local.py
+main_config_test_drive.py
+temp/
+*.pyc

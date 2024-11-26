@@ -1,0 +1,1085 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+
+<!-- Background image -->
+<div id="all" class="bg-image shadow-2-strong">
+
+    <!-- Container for the whole frame -->
+    <div class="mask d-flex justify-content-start align-items-start h-100 flex-column" style="background-color: rgba(0, 0, 0, 0.3);">
+        <div class="container-fluid container-hero-text-box-custom mb-4">
+            <p class="fs-2">Self-Describing Media Archives</p>
+        </div>
+
+        <form id="mainForm" name="mainForm" method="post" onsubmit="return validate_values()">
+            {{ mainForm.hidden_tag() }}
+
+            <!-- start s3 field set container -->
+            <div class="mask container-fluid mt-5 ms-5 bg-white rounded" style="--bs-bg-opacity: .25;" id="s3Section">
+
+                <!-- start S3 field set -->
+                <fieldset>
+                    <legend class="legend">Source settings</legend>
+
+                    <!-- start s3 rows -->
+                    <div id="s3Rows">
+
+                        <div class="row mb-3">
+
+                            <div class="col">
+                                <div class="form-floating">  
+                                    {{ mainForm.s3EndPointField(class="form-control", placeholder="https://IP:9020") }}
+                                    {{ mainForm.s3EndPointField.label(class="form-label") }}
+                                    <div id="s3EndPointFieldHelp" class="form-text caption">https://#.#.#.#:port</div>
+                                </div>
+                            </div>
+
+                            <div class="col">
+                                <div class="form-floating">  
+                                    {{ mainForm.s3BucketNameField(class="form-control", placeholder="") }}
+                                    {{ mainForm.s3BucketNameField.label(class="form-label") }}
+                                </div>
+                            </div>
+
+                            <div class="col">
+                                <div class="form-floating">  
+                                    {{ mainForm.s3KeyField(class="form-control", placeholder="") }}
+                                    {{ mainForm.s3KeyField.label(class="form-label") }}
+                                </div>
+                            </div>
+
+                            <div class="col">
+                                <div class="form-floating">  
+                                    {{ mainForm.s3SecretField(class="form-control", placeholder="", id="s3SecretField") }}
+                                    {{ mainForm.s3SecretField.label(class="form-label") }}
+                                </div>
+                            </div>
+
+                            <div class="col">
+                                <div class="form-floating">  
+                                    {{ mainForm.s3PageSizeField(class="form-control text-primary") }}
+                                    {{ mainForm.s3PageSizeField.label(class="form-label") }}
+                                </div>
+                                <div id="s3PageSizeFieldHelp" class="form-text caption">Object count per page</div>
+                            </div>
+
+                            <div class="col">
+                                <div class="form-check form-switch">
+                                    {{ mainForm.s3VerifyCertificateField.label(class="form-check-label label") }}
+                                    
+                                    {% if session['s3VerifyCertificate'] %}  
+                                    {{ mainForm.s3VerifyCertificateField(class="form-check-input", checked=True) }}
+                                    {% else %}
+                                    {{ mainForm.s3VerifyCertificateField(class="form-check-input") }}
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                        </div>
+
+                    <!-- end s3 rows -->
+                    </div>
+
+                </fieldset>
+                <!-- end S3 field set -->
+
+            <!-- end s3 field set container -->
+            </div>
+
+            <!-- start image processing field set container -->
+            <div class="mask container-fluid mt-4 ms-5 bg-white rounded" style="--bs-bg-opacity: .25;" id="imageProcessingSection">
+
+                <!-- start image processing field set -->
+                <fieldset>
+                    <legend class="legend">Image processing settings</legend>
+
+                    <!-- start image processing rows -->
+                    <div id="imageProcessingRows" hidden>
+
+                        <div class="row mb-3">
+
+                            <div class="col">
+                                <div class="form-check form-switch">
+                                    {{ mainForm.runTimeExtractExifField.label(class="form-check-label label") }}
+                                    
+                                    {% if session['extractExif'] %}  
+                                    {{ mainForm.runTimeExtractExifField(class="form-check-input", checked=True) }}
+                                    {% else %}
+                                    {{ mainForm.runTimeExtractExifField(class="form-check-input") }}
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="col">
+                                <div class="form-check form-switch">
+                                    {{ mainForm.runTimeExtractLabelsField.label(class="form-check-label label") }}
+                                    
+                                    {% if session['extractLabels'] %}  
+                                    {{ mainForm.runTimeExtractLabelsField(class="form-check-input", checked=True, id="runTimeExtractLabelsField") }}
+                                    {% else %}
+                                    {{ mainForm.runTimeExtractLabelsField(class="form-check-input", id="runTimeExtractLabelsField") }}
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="col">
+                                <div class="form-check form-switch">
+                                    {{ mainForm.runTimeSendToStarburstField.label(class="form-check-label label") }}
+                                    
+                                    {% if session['sendToStarburst'] %}  
+                                    {{ mainForm.runTimeSendToStarburstField(class="form-check-input", checked=True, id="runTimeSendToStarburstField") }}
+                                    {% else %}
+                                    {{ mainForm.runTimeSendToStarburstField(class="form-check-input", id="runTimeSendToStarburstField") }}
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                        </div>
+
+                    <!-- end runtime rows -->
+                    </div>
+
+                </fieldset>
+                <!-- end runtime field set -->
+
+            <!-- end runtime field set container -->
+            </div>
+
+            <!-- start computer vision field set container -->
+            <div class="mask container-fluid mt-4 ms-5 bg-white rounded" style="--bs-bg-opacity: .25;" id="computerVisionSection" hidden>
+
+                <!-- start computer vision field set -->
+                <fieldset>
+                    <legend class="legend">Object detection settings</legend>
+
+                    <!-- start runtime rows -->
+                    <div id="computerVisionRows" hidden>
+
+                        <div class="row mb-3" style="width: 75vw;">
+                            <div class="col">
+                                    {{ mainForm.visionAICredsField.label(class="form-label label") }}
+                                    {{ mainForm.visionAICredsField(class="form-control", placeholder="", id="visionAICredsField", rows="5") }}
+                            </div>
+                        </div>
+
+                    <!-- end runtime rows -->
+                    </div>
+
+                </fieldset>
+                <!-- end runtime field set -->
+
+            
+            <!-- end runtime field set container -->
+            </div>
+
+            <!-- startburst/ddae field set container -->
+            <div class="mask container-fluid mt-4 ms-5 bg-white rounded" style="--bs-bg-opacity: .25;" id="starburstSection" hidden>
+
+                <!-- start starburst field set -->
+                <fieldset>
+                    <legend class="legend">Iceberg settings (Starburst)</legend>
+
+                    <!-- start starburst rows -->
+                    <div id="starburstRows" hidden>
+
+                        <div class="row mb-3">
+
+                            <div class="col-2">
+                                <div class="form-floating">
+                                    {{ mainForm.starburstTypeField(class="form-select text-primary", id="starburstTypeField") }}
+                                    {{ mainForm.starburstTypeField.label() }}
+                                </div>
+                            </div>
+
+                            <div class="col-3">
+                                <div class="form-floating">  
+                                    {{ mainForm.starburstHostField(class="form-control", placeholder="Hostname") }}
+                                    {{ mainForm.starburstHostField.label(class="form-label") }}
+                                </div>
+                            </div>
+
+                            <div class="col-2">
+                                <div class="form-floating">  
+                                    {{ mainForm.starburstPortField(class="form-control text-primary", placeholder="443") }}
+                                    {{ mainForm.starburstPortField.label(class="form-label") }}
+                                </div>
+                            </div>
+
+                            <div class="col-2">
+                                <div class="form-floating">
+                                    {{ mainForm.starburstHttpSchemeField(class="form-select text-primary") }}
+                                    {{ mainForm.starburstHttpSchemeField.label() }}
+                                </div>
+                            </div>
+
+                            <div class="col">
+                                <div class="form-check form-switch">
+                                    {{ mainForm.starburstVerifyCertificateField.label(class="form-check-label label") }}
+                                    
+                                    {% if session['starburstVerifyCertificate'] %}  
+                                    {{ mainForm.starburstVerifyCertificateField(class="form-check-input", checked=True) }}
+                                    {% else %}
+                                    {{ mainForm.starburstVerifyCertificateField(class="form-check-input") }}
+                                    {% endif %}
+                                </div>
+                            </div>
+                        
+                        <!-- end of a row -->
+                        </div>
+
+                        <div class="row mb-3">
+
+                            <div class="col-2">
+                                <div class="form-floating">  
+                                    {{ mainForm.starburstCatalogField(class="form-control", placeholder="Catalog") }}
+                                    {{ mainForm.starburstCatalogField.label(class="form-label") }}
+                                </div>
+                            </div>
+
+                            <div class="col-3">
+                                <div class="form-floating">  
+                                    {{ mainForm.starburstUserField(class="form-control", placeholder="Username") }}
+                                    {{ mainForm.starburstUserField.label(class="form-label") }}
+                                </div>
+                            </div>
+
+                            <div class="col-2">
+                                <div class="form-floating">  
+                                    {{ mainForm.starburstRoleNameField(class="form-control", placeholder="Role") }}
+                                    {{ mainForm.starburstRoleNameField.label(class="form-label") }}
+                                </div>
+                            </div>
+
+                            <div class="col-2">
+                                <div class="form-floating">  
+                                    {{ mainForm.starburstPasswordField(class="form-control", placeholder="Password", id="starburstPasswordField") }}
+                                    {{ mainForm.starburstPasswordField.label(class="form-label") }}
+                                </div>
+                            </div>
+
+                        <!-- end of a row -->
+                        </div>
+
+                        <div class="row mb-3">
+
+                            <div class="col-2">
+                                <div class="form-floating">  
+                                    {{ mainForm.starburstBucketField(class="form-control", placeholder="Bucketname") }}
+                                    {{ mainForm.starburstBucketField.label(class="form-label") }}
+                                </div>
+                            </div>
+
+                            <div class="col-3">
+                                <div class="form-floating">  
+                                    {{ mainForm.starburstSchemaLocationField(class="form-control", placeholder="Schema Location") }}
+                                    {{ mainForm.starburstSchemaLocationField.label(class="form-label") }}
+                                </div>
+                            </div>
+
+                            <div class="col-2">
+                                <div class="form-floating">  
+                                    {{ mainForm.starburstSchemaField(class="form-control", placeholder="Schema") }}
+                                    {{ mainForm.starburstSchemaField.label(class="form-label") }}
+                                </div>
+                            </div>
+
+                            <div class="col-2">
+                                <div class="form-floating">  
+                                    {{ mainForm.starburstTableField(class="form-control", placeholder="Table") }}
+                                    {{ mainForm.starburstTableField.label(class="form-label") }}
+                                </div>
+                            </div>
+
+                        <!-- end of a row -->
+                        </div>
+
+                        <div class="row mb-3" id="galaxySection">
+
+                            <div class="col-2">
+                                <div class="form-floating label">  
+                                    Starburst Galaxy: 
+                                </div>
+                            </div>
+
+                            <div class="col-3">
+                                <div class="form-floating">  
+                                    {{ mainForm.starburstGalaxyAccountDomainField(class="form-control", placeholder="Account Domain", id="starburstGalaxyAccountDomainField") }}
+                                    {{ mainForm.starburstGalaxyAccountDomainField.label(class="form-label") }}
+                                </div>
+                            </div>
+
+                            <div class="col-2">
+                                <div class="form-floating">  
+                                    {{ mainForm.starburstGalaxyApiKeyField(class="form-control", placeholder="Schema Location", id="starburstGalaxyApiKeyField") }}
+                                    {{ mainForm.starburstGalaxyApiKeyField.label(class="form-label") }}
+                                </div>
+                            </div>
+
+                            <div class="col-2">
+                                <div class="form-floating">  
+                                    {{ mainForm.starburstGalaxyApiSecretField(class="form-control", placeholder="Secret", id="starburstGalaxyApiSecretField") }}
+                                    {{ mainForm.starburstGalaxyApiSecretField.label(class="form-label") }}
+                                </div>
+                            </div>
+
+                        <!-- end of a row -->
+                        </div>
+
+                    <!-- end runtime rows -->
+                    </div>
+
+                </fieldset>
+                <!-- end runtime field set -->
+
+            
+            <!-- end runtime field set container -->
+            </div>
+
+            <!-- start runtime field set container -->
+            <div class="mask container-fluid mt-4 ms-5 bg-white rounded" style="--bs-bg-opacity: .25;" id="runtimeSection">
+
+                <!-- start runtime field set -->
+                <fieldset>
+                    <legend class="legend">Runtime settings</legend>
+
+                    <!-- start runtime rows -->
+                    <div id="runtimeRows" hidden>
+
+                        <div class="row mb-3">
+
+                            <div class="col">
+                                <div class="form-check form-switch">
+                                    {{ mainForm.runTimeDryRunField.label(class="form-check-label label") }}
+                                    
+                                    {% if session['dryRun'] %}  
+                                    {{ mainForm.runTimeDryRunField(class="form-check-input", checked=True) }}
+                                    {% else %}
+                                    {{ mainForm.runTimeDryRunField(class="form-check-input") }}
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="col">
+                                <div class="form-check form-switch">
+                                    {{ mainForm.runTimeIncrementalField.label(class="form-check-label label") }}
+                                    
+                                    {% if session['incremental'] %}  
+                                    {{ mainForm.runTimeIncrementalField(class="form-check-input", checked=True) }}
+                                    {% else %}
+                                    {{ mainForm.runTimeIncrementalField(class="form-check-input") }}
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <div class="col">
+                                <div class="form-check form-switch">
+                                    {{ mainForm.runTimePartialDownloadField.label(class="form-check-label label") }}
+                                    
+                                    {% if session['partialDownload'] %}  
+                                    {{ mainForm.runTimePartialDownloadField(class="form-check-input", id="runTimePartialDownloadField", checked=True) }}
+                                    {% else %}
+                                    {{ mainForm.runTimePartialDownloadField(class="form-check-input", id="runTimePartialDownloadField") }}
+                                    {% endif %}
+                                    <div id="runTimePartialDownloadFieldHelp" class="form-text caption">First 100KB only</div>
+                                </div>
+                            </div>
+
+                            <div class="col">
+                                <div>
+                                    {{ mainForm.runTimeMaxNumberOfThreadsField.label(class="form-label label", id='threadsLabel') }}
+                                    {{ mainForm.runTimeMaxNumberOfThreadsField(class="form-range", min=1, max=8, id="runTimeMaxNumberOfThreadsField") }}
+                                </div>
+                            </div>
+
+                            <div class="col">
+                                <div class="form-floating">
+                                    {{ mainForm.runTimeTempPathField(class="form-control", placeholder="temp") }}
+                                    {{ mainForm.runTimeTempPathField.label(class="form-label") }}
+                                    <div id="runTimeTempPathFieldHelp" class="form-text caption">Path under application root directory</div>
+                                </div>
+                            </div>
+
+                            <div class="col">
+                                <div class="form-floating">
+                                    {{ mainForm.loggingLevelField(class="form-select text-primary") }}
+                                    {{ mainForm.loggingLevelField.label() }}
+                                </div>
+                            </div>
+
+                        <!-- end of a row -->
+                        </div>
+
+                        <div class="row mb-3">
+
+
+                            
+                        <!-- end of the row-->
+                        </div>
+
+                    <!-- end runtime rows -->
+                    </div>
+
+                </fieldset>
+                <!-- end runtime field set -->
+
+            
+            <!-- end runtime field set container -->
+            </div>
+
+            <!-- start control frame -->
+            <div class="mask container-fluid mt-4 ms-5 bg-transparent align-self-baseline" id="controlSection">
+    
+                <div class="d-flex justify-content-start">
+                    {{ mainForm.resetButton( class="btn auxiliary-button me-2", id="resetButton") }}
+                    {{ mainForm.testButton( class="btn auxiliary-button me-2", id="testButton") }}
+                    
+                    {% if session["testPassed"] %}
+
+                    {{ mainForm.saveButton( class="btn auxiliary-button me-2", id="saveButton") }}
+                    {{ mainForm.runButton( class="btn btn-primary", id="runButton") }}
+                    
+                    {% else %}            
+                    
+                    {{ mainForm.saveButton( class="btn auxiliary-button me-2", id="saveButton", disabled = true) }}
+                    {{ mainForm.runButton( class="btn btn-primary", id="runButton", disabled = true ) }}
+                    
+                    {% endif %}
+                </div>
+                
+            </div>
+            <!-- end controlForm -->
+
+        <!-- end form -->
+        </form>
+    <!-- Container for the whole frame -->
+    </div>
+
+<!-- Background image -->
+</div>
+
+<!-- Form check message -->
+<div class="modal fade" id="formCheck" tabindex="-1" aria-labelledby="formCheckLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="formCheckLabel">Form check</h5>
+          <button id = "closeFormCheckUpper"type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <div id = "formCheckBody" class="modal-body">
+          <!-- message goes in here -->
+        </div>
+        <div class="modal-footer">
+            <button id = "closeFormCheck" type="button" class="btn btn-warning" data-bs-dismiss="modal">Close</button>
+        </div>
+
+      </div>
+    </div>
+</div>
+
+<!-- Operation succeeded message -->
+<div class="modal fade" id="runSucceeded" tabindex="-1" aria-labelledby="runSucceededLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title operationSucceeded" id="runSucceededLabel">Run completed</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <div class="modal-body">
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn button-successful" data-bs-dismiss="modal">Close</button>
+        </div>
+
+      </div>
+    </div>
+</div>
+
+<!-- Operation succeeded message -->
+<div class="modal fade" id="operationSucceeded" tabindex="-1" aria-labelledby="operationSucceededLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title operationSucceeded" id="operationSucceededLabel">Test successful</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <div class="modal-body">
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn button-successful" data-bs-dismiss="modal">Close</button>
+        </div>
+
+      </div>
+    </div>
+</div>
+
+<!-- Operation failed message -->
+<div class="modal fade" id="operationFailed" tabindex="-1" aria-labelledby="operationFailedLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="operationFailedLabel">Operation failed</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <div id = "operationFailedBody" class="modal-body">
+            {% if defaultVars['message'] %}
+            <ul>
+                {% for item in defaultVars['message'] %}
+                <li>{{ item }} </li>
+                {% endfor %}
+            </ul>
+            {% endif %}
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-warning" data-bs-dismiss="modal">Close</button>
+        </div>
+
+      </div>
+    </div>
+</div>
+
+<!-- Working message -->
+<div class="modal fade" id="working" tabindex="-1" aria-labelledby="workingLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content" style="background-color: transparent!important; border-style: none!important">
+        <div class="modal-header" style="border-style: none!important">
+            <h5 class="modal-title" id="workingLabel" style="color: #eb6424!important">Working</h5>
+            <div class="modal-body">
+                <div class="spinner-border text-secondary" style="color: #eb6424!important" role="status">
+                    <span id="progressBarSpan" class="visually-hidden" ></span>  
+                </div>
+                <div hidden id="progressBar" class="progress mt-2" role="progressbar" aria-label="Progress" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="background-color: white!important">
+                    <div id="progressBarValue" class="progress-bar bg-warning text-dark progressBar" style="width: 0%">0%</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+{% endblock %}
+
+
+{% block custom_js %}
+<script type="text/javascript">
+
+    // Show test and run failed messages
+    let runSucceededModal = new bootstrap.Modal(document.querySelector('#runSucceeded'), {backdrop: true, keyboard: true, focus: true});
+    let operationSucceededModal = new bootstrap.Modal(document.querySelector('#operationSucceeded'), {backdrop: true, keyboard: true, focus: true});
+    let operationFailedModal = new bootstrap.Modal(document.querySelector('#operationFailed'), {backdrop: true, keyboard: true, focus: true});
+    let operationFailedBody = document.querySelector("#operationFailedBody");
+
+    // If it is a post but not reset operation
+    {% if not session["operationGet"] and not session['runInitiated'] and not session["testPassed"] %}
+        operationFailedModal.show();
+    {% endif %}
+
+    // If it is a post but not reset operation
+    {% if not session["operationGet"] and not session['runInitiated'] and session["testPassed"] %}
+        operationSucceededModal.show();
+    {% endif %}
+
+    // Disable Save and Run buttons on a form change
+    let runButton = document.querySelector("#runButton");
+    let saveButton = document.querySelector("#saveButton");
+    mainForm = document.querySelector("#mainForm");
+
+    let disable_buttons = () => {
+        if(!(saveButton.hasAttribute("disabled"))){
+            saveButton.setAttribute("disabled", true);
+        }
+        if(!(runButton.hasAttribute("disabled"))){
+            runButton.setAttribute("disabled", true);
+        }
+    }
+    mainForm.addEventListener("change", disable_buttons);
+
+    // Fill the password fields if they have the defaults
+    let s3SecretField = document.querySelector("#s3SecretField");
+    let starburstPasswordField = document.querySelector("#starburstPasswordField");
+    let starburstGalaxyApiSecretField = document.querySelector("#starburstGalaxyApiSecretField");
+    let starburstGalaxyApiKeyField = document.querySelector("#starburstGalaxyApiKeyField");
+    let starburstGalaxyAccountDomainField = document.querySelector("#starburstGalaxyAccountDomainField");
+
+    s3SecretField.value = "{{ defaultVars['s3Secret'] }}";
+    starburstPasswordField.value = "{{ defaultVars['starburstPassword'] }}";
+    starburstGalaxyApiSecretField.value = "{{ defaultVars['starburstGalaxyApiSecret'] }}";
+
+    // ### If the Test or Run button is clicked, show a spinner and then click the button
+    let testButton = document.querySelector("#testButton");
+    let workingModal = new bootstrap.Modal(document.querySelector('#working'), {backdrop: 'static', keyboard: true, focus: true})
+    let workingModalTitle = document.querySelector("#working .modal-title")
+    let workingModalDisplayed = false
+    
+
+    let test_button_clicked = (event) => {
+        if(validate_values()){
+            event.preventDefault();
+            testButton.removeEventListener("click", test_button_clicked)
+            workingModalTitle.innerText = "Testing..."
+            workingModal.show();
+            testButton.click();
+        }
+        
+    }
+    testButton.addEventListener("click", test_button_clicked);
+
+    // ### If Reset button is clicked, send a "POST" without validating values
+    let resetButton = document.querySelector("#resetButton")
+    let resetButtonClicked = false;
+
+    let reset_button_clicked = (event) => {
+        event.preventDefault();
+        resetButtonClicked = true;
+        console.log("resetButtonClicked: " + resetButtonClicked)
+        resetButton.removeEventListener("click", reset_button_clicked);
+        resetButton.click();
+    }
+    resetButton.addEventListener("click", reset_button_clicked)
+
+    // ### Check for fields that dont have values. This is the custom validation function.
+    let formCheckModal = new bootstrap.Modal(document.querySelector('#formCheck'), {backdrop: true, keyboard: true, focus: true})
+    let formCheckModalBody = document.querySelector("#formCheckBody");
+    let closeFormCheckUpper = document.querySelector("#closeFormCheckUpper");
+    let closeFormCheck = document.querySelector("#closeFormCheck");
+
+
+    let close_formcheck_modal = () => {
+        formCheckModal.hide();
+    }
+    closeFormCheck.addEventListener("click", close_formcheck_modal);
+    closeFormCheckUpper.addEventListener("click", close_formcheck_modal);
+
+    let validate_values = () => {
+
+        if(resetButtonClicked){
+            return true
+        }
+
+        // let extractLabels = document.querySelector("#runTimeExtractLabelsField");
+        // let extractLabelsChecked = extractLabels.checked;
+        // let sendToStarburst = document.querySelector("#runTimeSendToStarburstField");
+        // let sendToStarburstChecked = sendToStarburst.checked;
+
+        let missingValueFound = false
+        let sourceSettingsAdded = false;
+        let imageProcessingSettingsAdded = false;
+        let objectDetectionSettingsAdded = false;
+        let starburstSettingsAdded = false;
+        let icebergDetectionSettingsAdded = false;
+        let runTimeDetectionSettingsAdded = false;
+
+        let messageItems = document.createElement("ul");
+        let mainForm = document.forms["mainForm"];
+        for(let item of mainForm){
+            if(!(item.type === "checkbox" || item.type === 'fieldset')){
+                if(!(item.value)){
+                    if(item.id.toLowerCase().includes("s3") && !(sourceSettingsAdded)){
+                        
+                        let messageItem = document.createTextNode("Source settings");
+                        let node = document.createElement("li");
+                        node.appendChild(messageItem);
+                        messageItems.appendChild(node);
+
+                        sourceSettingsAdded = true;
+                        missingValueFound = true;
+                    }
+
+                    if(extractLabelsChecked && item.id.toLowerCase().includes("vision") && !(objectDetectionSettingsAdded)){
+
+                        let messageItem = document.createTextNode("Object detection settings");
+                        let node = document.createElement("li");
+                        node.appendChild(messageItem);
+                        messageItems.appendChild(node);
+
+                        objectDetectionSettingsAdded = true;
+                        missingValueFound = true;
+                    }
+
+                    if(sendToStarburstChecked && item.id.toLowerCase().includes("starburst") && !(starburstSettingsAdded)){
+                        starburstType = starburstTypeSelection.value
+                        if(starburstType.toLowerCase() !== "galaxy"){   
+                            if(!(item.id.toLowerCase().includes("galaxy"))){
+                                let messageItem = document.createTextNode("Iceberg settings (Starburst)");
+                                let node = document.createElement("li");
+                                node.appendChild(messageItem);
+                                messageItems.appendChild(node);
+
+                                starburstSettingsAdded = true;
+                                missingValueFound = true;
+                            }
+
+                        } else {
+                                let messageItem = document.createTextNode("Iceberg settings (Starburst)");
+                                let node = document.createElement("li");
+                                node.appendChild(messageItem);
+                                messageItems.appendChild(node);
+
+                                starburstSettingsAdded = true;
+                                missingValueFound = true;
+                            }
+
+                    }   
+
+                    if(item.id.toLowerCase().includes("runtime") && !(runTimeDetectionSettingsAdded)){
+                        let messageItem = document.createTextNode("Runtime settings");
+                        let node = document.createElement("li");
+                        node.appendChild(messageItem);
+                        messageItems.appendChild(node);
+
+                        runTimeDetectionSettingsAdded = true;
+                        missingValueFound = true;
+                    }
+
+                }
+            }
+        }
+
+        if(missingValueFound){
+            // let formCheckModal = new bootstrap.Modal(document.querySelector('#formCheck'), {backdrop: true, keyboard: true, focus: true})
+            // let formCheckModalBody = document.querySelector("#formCheckBody");
+
+            let messageHeader = "Following sections has missing value(s):";
+
+            formCheckModalBody.replaceChildren();
+            formCheckModalBody.append(messageHeader);
+            formCheckModalBody.append(messageItems);
+
+            formCheckModal.show();
+            return false;
+        }
+
+        return true;
+    }
+
+    //### Update the value of runTimeMaxNumberOfThreadsField.label value as the field changes
+    let threadsField = document.querySelector("#runTimeMaxNumberOfThreadsField")
+    let threadsLabel = document.querySelector("#threadsLabel")
+
+    let update_threads_label = () => {
+        let currentValue = threadsField.value;
+        threadsLabel.textContent = "Number of threads: " + currentValue
+    }
+    threadsField.addEventListener("change", update_threads_label)
+
+    //### Hide/Unhide "Vision AI " and disable "Partial downloads" if necessary
+    //computerVisionSection should start with "hidden" attribute for this to work.
+    let computerVisionSection = document.querySelector("#computerVisionSection");
+    let extractLabels = document.querySelector("#runTimeExtractLabelsField");
+    let extractLabelsChecked = extractLabels.checked;
+    let partialDownloads = document.querySelector("#runTimePartialDownloadField");
+
+    // Disable "Partial downloads" switch if necessary
+    
+    if(extractLabelsChecked){
+        // Make "VisionAI settings" visible
+        computerVisionSection.removeAttribute("hidden");
+
+        // Disable "Partial downloads" switch
+        // PATCH PATCH PATCH
+        // if(partialDownloads.hasAttribute("checked")){
+        //    partialDownloads.setAttribute("checked", false);
+        // }
+        partialDownloads.checked = false;
+        partialDownloads.setAttribute("disabled", true);
+    }
+
+    let hide_computer_vision_section_and_disable_partial_downloads = () => {
+        extractLabelsChecked = extractLabels.checked;
+        if(extractLabelsChecked){
+            computerVisionSection.removeAttribute("hidden");
+            partialDownloads.checked = false;
+            partialDownloads.setAttribute("disabled", true);
+        } else {
+            computerVisionSection.setAttribute("hidden", true);
+            // Enable "Partial downloads" switch
+            // if(partialDownloads.hasAttribute("disabled")){
+            //    partialDownloads.removeAttribute("disabled");
+            // }
+            partialDownloads.disabled = false;
+
+            {% if session['partialDownload'] %}
+            partialDownloads.checked = true;
+            {% else %}
+            // PATCH PATCH 
+            // if(partialDownloads.hasAttribute("checked")){
+            //    partialDownloads.removeAttribute("checked");
+            // }
+            partialDownloads.checked = false;
+            {% endif %}
+        }
+    }
+    extractLabels.addEventListener("change", hide_computer_vision_section_and_disable_partial_downloads)
+
+    //### Hide/Unhide "Starburst"
+    //computerVisionSection should start with "hidden" attribute for this to work.
+    let starburstSection = document.querySelector("#starburstSection");
+    let sendToStarburst = document.querySelector("#runTimeSendToStarburstField");
+    let sendToStarburstChecked = sendToStarburst.checked;
+
+    if(sendToStarburstChecked){
+        starburstSection.removeAttribute("hidden")
+    }
+
+    let hide_starburst_section = () => {
+        sendToStarburstChecked = sendToStarburst.checked;
+        if(sendToStarburstChecked){
+            starburstSection.removeAttribute("hidden");
+        } else {
+            starburstSection.setAttribute("hidden", true);
+        }
+    }
+
+    sendToStarburst.addEventListener("change", hide_starburst_section)
+
+    //### Hide/Unhide Galaxy specific settings
+    //computerVisionSection should start with "hidden" attribute for this to work.
+    let galaxySection = document.querySelector("#galaxySection");
+    let starburstTypeSelection = document.querySelector("#starburstTypeField");
+    let starburstType = starburstTypeSelection.value
+    galaxySection.setAttribute("hidden", true)
+
+    if(starburstType.toLowerCase() === 'galaxy'){
+        galaxySection.removeAttribute("hidden")
+    }
+
+    let hide_galaxy_section = () => {
+        starburstType = starburstTypeSelection.value;
+        if(starburstType.toLowerCase() === 'galaxy'){
+            if(galaxySection.hasAttribute("hidden")){
+                galaxySection.removeAttribute("hidden");
+            }
+        } else {
+            galaxySection.setAttribute("hidden", true);
+        }
+    }
+
+    starburstTypeSelection.addEventListener("change", hide_galaxy_section)
+
+    // ### Hide/unhide sections
+    let rows = new Object()
+
+    let s3SectionTitle = document.querySelector("#s3Section fieldset:first-child legend");
+    let s3Rows = document.querySelector("#s3Rows");
+    rows['s3Rows'] = s3Rows;
+
+    let runtimeSectionTitle = document.querySelector("#runtimeSection fieldset:first-child legend");
+    let runtimeRows = document.querySelector("#runtimeRows");
+    rows['runtimeRows'] = runtimeRows;
+
+    let imageProcessingSectionTitle = document.querySelector("#imageProcessingSection fieldset:first-child legend");
+    let imageProcessingRows = document.querySelector("#imageProcessingRows");
+    rows['imageProcessing'] = imageProcessingRows;
+
+    let computerVisionSectionTitle = document.querySelector("#computerVisionSection fieldset:first-child legend");
+    let computerVisionRows = document.querySelector("#computerVisionRows");
+    rows['computerVision'] = computerVisionRows;
+
+    let starburstSectionTitle = document.querySelector("#starburstSection fieldset:first-child legend");
+    let starburstRows = document.querySelector("#starburstRows");
+    rows['starburst'] = starburstRows;
+
+    // Hide/Unhide s3 rows
+    let hide_s3_rows = () => {
+        let hidden = s3Rows.getAttribute("hidden");
+        if(hidden){
+            for(let key in rows){
+                if(key === 's3Rows'){
+                    rows[key].removeAttribute("hidden");
+                } else {
+                    rows[key].setAttribute("hidden", true);
+                }
+            }
+        } else {
+            s3Rows.setAttribute("hidden", true);
+        }
+    }
+    s3SectionTitle.addEventListener("click", hide_s3_rows);
+
+    // Hide/Unhide runtime rows
+    let hide_runtime_rows = () => {
+        let hidden = runtimeRows.getAttribute("hidden");
+        if(hidden){
+            for(let key in rows){
+                if(key === 'runtimeRows'){
+                    rows[key].removeAttribute("hidden");
+                } else {
+                    rows[key].setAttribute("hidden", true);
+                }
+            }
+        } else {
+            runtimeRows.setAttribute("hidden", true);
+        }
+    }
+    runtimeSectionTitle.addEventListener("click", hide_runtime_rows);
+
+    // Hide/Unhide computer vision rows
+    let hide_computer_vision_rows = () => {
+        let hidden = computerVisionRows.getAttribute("hidden");
+        if(hidden){
+            for(let key in rows){
+                if(key === 'computerVision'){
+                    rows[key].removeAttribute("hidden");
+                } else {
+                    rows[key].setAttribute("hidden", true);
+                }
+            }
+        } else {
+            computerVisionRows.setAttribute("hidden", true);
+        }
+    }
+    computerVisionSectionTitle.addEventListener("click", hide_computer_vision_rows);
+
+
+    // Hide/Unhide starburst rows
+    let hide_starburst_rows = () => {
+        let hidden = starburstRows.getAttribute("hidden");
+        if(hidden){
+            for(let key in rows)
+                if(key === 'starburst'){
+                    rows[key].removeAttribute("hidden");
+                } else {
+                    rows[key].setAttribute("hidden", true);
+                }
+            
+        } else {
+            starburstRows.setAttribute("hidden", true);
+        }
+    }
+    starburstSectionTitle.addEventListener("click", hide_starburst_rows);
+
+    // Hide/Unhide runtime rows
+    let hide_image_processing_rows = () => {
+        let hidden = imageProcessingRows.getAttribute("hidden");
+        if(hidden){
+            for(let key in rows){
+                if(key === 'imageProcessing'){
+                    rows[key].removeAttribute("hidden");
+                } else {
+                    rows[key].setAttribute("hidden", true);
+                }
+            }
+        } else {
+            imageProcessingRows.setAttribute("hidden", true);
+        }
+    }
+    imageProcessingSectionTitle.addEventListener("click", hide_image_processing_rows);
+
+    // #### Show/hide working spinner, progress bar
+    {% if session['runInitiated'] %}
+
+    // ### Progres bar update
+    let progressBar = document.querySelector("#progressBar");
+    let progressBarValue = document.querySelector("#progressBarValue");
+    function run_button_clicked (){
+
+        function ready_state (){
+            if (this.readyState == 4 && this.status == 200) {
+                console.log(this.responseText)
+                // console.log(this.readyState)
+                // if init-failed
+                if(this.responseText == 'init-failed'){
+                    console.log(this.responseText)
+                    clearTimeout(timeoutId);
+                    if(workingModalDisplayed){
+                        workingModal.hide();
+                        workingModalDisplayed = false;
+                    }
+                    operationFailedBody.innerText = "Initialization failed!"
+                    operationFailedModal.show();
+
+                } else if(this.responseText == 'init-threads-failed'){
+                    console.log(this.responseText)
+                    clearTimeout(timeoutId);
+                    if(workingModalDisplayed){
+                        workingModal.hide();
+                        workingModalDisplayed = false;
+                    }
+                    operationFailedBody.innerText = "Workers initialization failed! Empty Bucket?"
+                    operationFailedModal.show();
+
+                } else if(this.responseText == '200'){
+                    if(!(workingModalDisplayed)){
+                        workingModal.show();
+                        workingModalDisplayed = true;
+                    }
+
+                    console.log(this.responseText)
+                    clearTimeout(timeoutId);
+                    progressBar.setAttribute("aria-valuenow", 100)
+                    _width = "width: " + '100' +"%";
+                    progressBarValue.setAttribute("style", _width);
+                    progressBarValue.innerText = "100" + "%";
+                    function _setAttribute (){
+                        workingModalTitle.innerText = "Ending...";
+                        progressBar.setAttribute("hidden", true);
+                        workingModal.hide();
+                        workingModalDisplayed = false;
+                        runSucceededModal.show();
+                    }
+                    setTimeout(_setAttribute, 2000);
+
+                } else if(this.responseText == '101'){
+                    if(!(workingModalDisplayed)){
+                        workingModal.show();
+                        workingModalDisplayed = true;
+                    }
+                    
+                    progressBar.setAttribute("aria-valuenow", 100);
+                    _width = "width: " + '100' +"%";
+                    progressBarValue.setAttribute("style", _width);
+                    progressBarValue.innerText = 100 + "%";
+                    function _setAttribute (){
+                        workingModalTitle.innerText = "Updating Iceberg table...";
+                        progressBar.setAttribute("hidden", true);
+                    }
+                    setTimeout(_setAttribute, 2000);
+
+                } else if(this.responseText > '-1'){
+                    if(!(workingModalDisplayed)){
+                        workingModal.show();
+                        workingModalDisplayed = true;
+                    }
+
+                    workingModalTitle.innerText = "Processing media files...";
+                    if(progressBar.hasAttribute("hidden")){
+                        progressBar.removeAttribute("hidden");
+                    }
+
+                    console.log(this.responseText)
+                    progressBar.setAttribute("aria-valuenow", this.responseText);
+                    _width = "width: " + this.responseText +"%"
+                    progressBarValue.setAttribute("style", _width)
+                    progressBarValue.innerText = this.responseText + "%";
+                }
+
+            }
+        }
+
+        function update_progress(){
+            var xhttp = new XMLHttpRequest();
+            xhttp.onreadystatechange = ready_state;
+            xhttp.open("GET", "progress");
+            xhttp.send();
+        }
+
+        // Main section for the function
+        workingModalTitle.innerText = "Launching workers...";
+        workingModal.show();
+        workingModalDisplayed = true;
+        timeoutId = setInterval(update_progress, 2000);
+    }
+
+    run_button_clicked();
+
+    {% endif %}
+
+
+</script>
+{% endblock %}
+

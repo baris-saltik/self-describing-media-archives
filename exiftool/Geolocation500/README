@@ -1,0 +1,25 @@
+ExifTool Geolocation database files
+----------------------------------------------------------------------------
+
+The built-in Geolocation feature of ExifTool includes cities with
+populations greater than 2000 without language support.  This package
+enhances this ability to include cities with populations greater than 500
+and adds support for alternate city names and language translations.
+
+To install these files, and add an entry in the ExifTool config
+file pointing to this directory:
+
+  $Image::ExifTool::Geolocation::geoDir = '/PATH/TO/DIR';
+
+where "DIR" is the directory containing this README file, Geolocation.dat,
+AltNames.dat and the GeoLang directory.
+
+Alternately, Geolocation.dat, AltNames.dat and GeoLang may be copied into the
+same directory as the lib/Image/ExifTool/Geolocation.pm module.
+
+These database files are based on the Creative Commons databases provided by
+geonames.org.  See https://exiftool.org/geolocation.html for more details,
+and the comments in lib/Image/ExifTool/Geolocation.pm for a description of
+the database format.
+
+----------------------------------------------------------------------------

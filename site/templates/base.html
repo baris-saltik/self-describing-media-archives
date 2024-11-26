@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="EN">
+    <head>
+        <meta charset="utf-8">
+        <title>Self-Describing Media Archives</title>
+        <!-- favicon -->
+        <link rel="icon" type="image/png" sizes="32x32" href=" {{ url_for('static', filename='icon/favicon-32x32.png') }} ">
+
+        <!-- Bootstrap -->
+        <link rel="stylesheet" href="{{ url_for('static', filename = 'css/bootstrap.css') }}">
+        <script src=" {{ url_for('static', filename = 'js/bootstrap.bundle.js') }}"></script>
+
+        <!-- Custom CSS -->
+        <link rel="stylesheet" href="{{ url_for('static', filename = 'css/fonts.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename = 'css/icons.css') }}">
+        <link rel="stylesheet" href="{{ url_for('static', filename = 'css/master.css') }}">
+
+        
+    </head>
+    <body style="background-color: #373737;">
+        
+        <!--
+        <div class="container-fluid text-light bg-primary py-1">
+            <h5>Airports Data Pipeline Expansion to HOL-0567-01</h2>
+        </div>
+        -->
+
+        {% block navbar %}
+        <nav class="navbar navbar-expand-md bg-white" data-bs-theme="light">
+
+            <div class="container-fluid">
+                <a class="navbar-brand" href="https://github.com/baris-saltik/self-describing-media-archives" target="_blank">
+                    <!-- <img src=" {{ url_for('static', filename='icon/DellTech_Logo_Prm_Blue_Gry_rgb.jpg') }} " alt='Dell Technologies' style="height: 1rem; max-width: auto;">-->
+                     <img src=" {{ url_for('static', filename='icon/sdma_logo.png') }} " alt='SDMA' style="height: 1rem; max-width: auto;">
+                </a>
+
+              <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+              </button>
+
+              <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="https://www.dell.com/en-us/shop/storage-servers-and-networking-for-business/sf/powerscale" target="_blank">PowerScale</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="https://www.dell.com/en-us/dt/storage/ecs/index.htm" target="_blank">ECS</a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="https://www.dell.com/support/kbdoc/en-us/000223035/dell-data-lakehouse-documentation-index" target="_blank">Data Lakehouse</a>
+                    </li>
+                    
+                </ul>
+              </div>
+
+            </div>
+          </nav>
+
+        {% endblock %}
+
+        {% block content %}
+        {% endblock %}
+
+
+    {% block custom_js %}
+    {% endblock %}
+                
+    </body>
+
+
+
+</html>

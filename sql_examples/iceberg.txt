@@ -1,0 +1,58 @@
+SHOW CATALOGS;
+SHOW SCHEMAS FROM iceberg;
+SHOW TABLES FROM iceberg.media_metadata;
+USE iceberg.media_metadata;
+
+SELECT * FROM media_bucket;
+
+-- Search media which has snow, freezing or glacial forms in it from the city of Dubai
+SELECT * FROM media_bucket
+WHERE 
+    lower(label1) IN ('snow', 'freezing', 'glacial', 'dusk', 'beach') OR
+    lower(label2) IN ('snow', 'freezing', 'glacial', 'dusk', 'beach') OR
+    lower(label3) IN ('snow', 'freezing', 'glacial', 'dusk', 'beach') OR
+    lower(label4) IN ('snow', 'freezing', 'glacial', 'dusk', 'beach') OR
+    lower(label5) IN ('snow', 'freezing', 'glacial', 'dusk', 'beach') OR
+    lower(label6) IN ('snow', 'freezing', 'glacial', 'dusk', 'beach') OR
+    lower(label7) IN ('snow', 'freezing', 'glacial', 'dusk', 'beach') OR
+    lower(label8) IN ('snow', 'freezing', 'glacial', 'dusk', 'beach') OR
+    lower(label9) IN ('snow', 'freezing', 'glacial', 'dusk', 'beach') OR
+    lower(label10) IN ('snow', 'freezing', 'glacial', 'dusk', 'beach') AND 
+    lower(geolocationregion) LIKE '%dubai%';
+
+-- Search for images which were created
+-- * between 08:40:00 and 08:45:00 UTC on 2023-08-13
+-- * on a geolocation bearing of 70 to 75 degrees  and 5 or more kilometers to the city center of Altinoluk
+-- * 50 or more meters away from the sea level
+-- * has a plain, grassland backdrop
+SELECT *
+FROM media_bucket
+WHERE
+    -- UTC time stamp will be 2023-08-13 between 08:40:00 and 08:45:00
+    CAST(concat(CAST(createdate AS VARCHAR), ' ', geolocationtimezone) AS TIMESTAMP WITH TIME ZONE) AT TIME ZONE 'UTC' BETWEEN TIMESTAMP '2023-08-13 08:40:00 UTC' AND TIMESTAMP '2023-08-13 08:45:00 UTC' AND
+    -- Between 70 and 75 degrees clocwise and more than 5km away from the city center
+    CAST(geolocationbearing AS INTEGER) BETWEEN 70 AND 75 AND
+    CAST(regexp_extract(geolocationdistance,'(\d+)?') AS INTEGER) >= 5 AND
+    -- Altinoluk city
+    lower(geolocationcity) LIKE 'altinoluk' AND
+    -- 50m above sea level
+    CAST(regexp_extract(gpsaltitude, '\d+') AS INTEGER) > 50 AND
+    lower(regexp_extract(gpsaltitude, '(Above|Below)')) LIKE 'above' AND
+    -- The background has plain grassland
+    lower(label1) IN ('grass', 'grassland', 'plain') OR
+    lower(label2) IN ('grass', 'grassland', 'plain') OR
+    lower(label3) IN ('grass', 'grassland', 'plain') OR
+    lower(label4) IN ('grass', 'grassland', 'plain') OR
+    lower(label5) IN ('grass', 'grassland', 'plain') OR
+    lower(label6) IN ('grass', 'grassland', 'plain') OR
+    lower(label7) IN ('grass', 'grassland', 'plain') OR
+    lower(label8) IN ('grass', 'grassland', 'plain') OR
+    lower(label9) IN ('grass', 'grassland', 'plain') OR
+    lower(label10) IN ('grass', 'grassland', 'plain');
+
+------------------------------------------------------
+------------------- CLEAN UP -------------------------
+------------------------------------------------------
+USE iceberg.media_metadata;
+DROP TABLE media_bucket;
+DROP SCHEMA media_metadata;
