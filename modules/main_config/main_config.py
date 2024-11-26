@@ -97,7 +97,7 @@ class Config(object):
 
         # Vision AI
         visionAIDefaults = {
-            'creds': {},
+            'creds': '',
             'credsFilePath': '',
             'testFilePath': "test_image.jpg",
             'testVideoFilePath': 'test_video.mp4'
@@ -111,7 +111,7 @@ class Config(object):
 
         # Starburst/DDAE
         starburstDefaults = {
-            "host": "domain-name.galaxy.starburst.io",
+            "host": "cluster-name.trino.galaxy.starburst.io",
             "port": 443,
             "httpScheme": "https",
             "verifyCertificate": False,
@@ -121,7 +121,7 @@ class Config(object):
             "catalog": "iceberg",
             "schema": "media_metadata",
             "table": "media_bucket",
-            "bucket": "sdma",
+            "bucket": "sdma1",
             "schemaLocation": "/media_metadata",
             "columns": ["key", "createdate", "filesize", "flash", "imagesize", "mimetype", "make", "model", "orientation", "software", "gpsaltitude", "gpslatitude", "gpslongitude", "geolocationbearing", "geolocationcity", "geolocationcountry", "geolocationcountrycode", "geolocationdistance", "geolocationpopulation", "geolocationposition", "geolocationregion", "geolocationtimezone", 
                         "label1","label2","label3","label4","label5","label6","label7","label8","label9","label10","processed"],
