@@ -79,7 +79,7 @@ def create_form(config = None):
             # These will be displayed under "Image Processing Settings" on the web GUI
             runTimeExtractExifField = BooleanField(label="Extract Exif data")
             runTimeExtractLabelsField = BooleanField(label="Object detection")
-            runTimeSendToStarburstField = BooleanField(label="Upload to Iceberg (Starburst)")
+            runTimeSendToStarburstField = BooleanField(label="Upload metadata to Iceberg (Starburst)")
 
             # These will be displayed under "Runtime Settings"
             runTimeDryRunField = BooleanField(label="Dry run")
